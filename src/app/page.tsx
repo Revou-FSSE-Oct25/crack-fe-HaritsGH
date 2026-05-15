@@ -1,33 +1,78 @@
+// 'use client';
+
 import TournamentCard from "@/components/TournamentCard";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import Image from "next/image";
-import { TournamentProps } from "./lib/tournament";
+import { TournamentProps } from "@/lib/props";
+import Link from "next/link";
 
 
 export default function Home() {
   const tourneyList : TournamentProps[] = [
     {
       id : 1,
-      title : 'turni',
-      date : '17-10-1994',
-      location : 'Online',
+      name : 'turni',
+      startdate : '17-10-1994',
+      status : 'Upcoming',
       game : 'Mahjong',
-      // imageUrl : ''
-    }
+    },
+    {
+      id : 2,
+      name : 'turni2',
+      startdate : '17-10-1994',
+      status : 'Upcoming',
+      game : 'Mahjong',
+    },
   ]
   return (
-    <div className="bg-white text-black h-screen w-full border-b-1">
+    <div className="min-h-screen bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300">
       <Header/>
-      <main className="h-full bg-gray-200 ">
-        <section>
-          <p>Hero Section</p>
-          <p>Elite Ball Knowledge</p>
+      <main className="flex-1">
+        {/* Hero Section */}
+        <section className="relative overflow-hidden bg-gradient-to-r from-gray-700 via-gray-800 to-gray-900 text-white py-20 px-4">
+          <div className="max-w-6xl mx-auto text-center">
+            <h1 className="text-5xl md:text-6xl font-bold mb-4 tracking-tight">Elite Ball Knowledge</h1>
+            <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+              Join the ultimate gaming tournament platform. Compete, win, and become a legend.
+            </p>
+            <div className="flex gap-4 justify-center">
+              <Link 
+                href="/tournament" 
+                className="px-8 py-3 bg-white text-gray-900 font-semibold rounded-lg hover:bg-gray-100 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              >
+                Browse Tournaments
+              </Link>
+              <Link 
+                href="/register" 
+                className="px-8 py-3 bg-transparent border-2 border-white text-white font-semibold rounded-lg hover:bg-white hover:text-gray-900 transition-all duration-200"
+              >
+                Get Started
+              </Link>
+            </div>
+          </div>
         </section>
           
-        <section>
-          <p>Tournaments</p>
-          {/* {tourneyList.map((turni : TournamentProps) => TournamentCard({turni}))} */}
+        {/* Tournaments Section */}
+        <section className="py-16 px-4">
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl font-bold text-gray-900 mb-4">Featured Tournaments</h2>
+              <p className="text-gray-600 text-lg">Compete in the best gaming events</p>
+            </div>
+            <div className="flex flex-wrap gap-6 justify-center">
+              {tourneyList.map((turni : TournamentProps) => (
+                <TournamentCard key={turni.id} details={turni} />
+              ))}
+            </div>
+            <div className="text-center mt-10">
+              <Link 
+                href="/tournament" 
+                className="inline-block px-8 py-3 bg-gradient-to-r from-gray-700 to-gray-900 hover:from-gray-800 hover:to-black text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
+              >
+                View All Tournaments
+              </Link>
+            </div>
+          </div>
         </section>
       </main>
       <Footer/>

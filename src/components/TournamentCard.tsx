@@ -1,18 +1,13 @@
 import { TournamentProps } from '@/app/lib/tournament'
-import Image from 'next/image'
 import Link from 'next/link'
 
-const TournamentCard : React.FC<TournamentProps> = (details) => {
+const TournamentCard = ({details}: {details: TournamentProps}) => {
   return (
-    <div key={details.id}>
-      <Link href={`events/${details.id}`}>
-        {/* <Image
-          src={details.imageUrl}
-          alt={`${details.title}`}
-        /> */}
-        <p>{details.title}</p>
-        <p>{details.date}</p>
-        <p>{details.location}</p>
+    <div key={details.id} className="border-1 border-gray-300 p-4">
+      <Link href={`tournament/${details.id}`}>
+        <p>{details.name}</p>
+        <p>{details.startdate}</p>
+        <p>{details.status}</p>
         <p>{details.game}</p>
       </Link>
     </div>
