@@ -17,8 +17,15 @@ const ProfilePage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const userProfile = await getUserProfileAction()
-        setUserProfile(userProfile)
+        const result = await getUserProfileAction()
+        if ('error' in result) {
+          console.error(result.error)
+        } else {
+          setUserProfile({
+            username: result.username,
+            email: result.email
+          })
+        }
       } catch (error) {
         console.error(error)
       }

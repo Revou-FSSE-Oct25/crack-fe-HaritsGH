@@ -80,6 +80,8 @@ const SearchUser = ({ tournamentId, ownerUserId }: SearchUserProps) => {
   }
 
   const handleUpdateAdmins = async () => {
+    if (!tournamentId) return
+
     setIsUpdating(true)
     try {
       await updateAdminsAction(tournamentId, admins)

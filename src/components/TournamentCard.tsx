@@ -1,4 +1,4 @@
-import { TournamentProps } from '@/app/lib/tournament'
+import { TournamentProps } from '@/lib/props'
 import Link from 'next/link'
 
 const TournamentCard = ({details}: {details: TournamentProps}) => {

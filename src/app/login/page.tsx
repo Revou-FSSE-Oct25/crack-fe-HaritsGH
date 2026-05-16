@@ -2,27 +2,25 @@
 
 import Header from '@/components/Header'
 import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useTransition, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useEffect, useTransition, useState, Suspense } from 'react'
 import { useForm } from 'react-hook-form'
 import { loginAction } from './action'
 import { LoginProps } from '@/lib/props'
 import { useUser } from '@/app/context/UserContext'
 
-function LoginPage() {
+function LoginForm() {
   const { register, handleSubmit, formState: { errors } } = useForm<LoginProps>()
   const [isPending, startTransition] = useTransition()
   const [loginError, setLoginError] = useState<string | null>(null)
   const router = useRouter()
-  const searchParams = useSearchParams()
   const { setUserInfo, userId } = useUser()
 
   useEffect(() => {
     if (userId) {
-      const redirect = searchParams.get('redirect')
-      router.push(redirect || '/dashboard')
+      router.push('/dashboard')
     }
-  }, [userId, router, searchParams])
+  }, [userId, router])
 
   const onSubmit = (data: LoginProps) => {
     setLoginError(null)
@@ -47,19 +45,19 @@ function LoginPage() {
           <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-2xl p-8 border border-gray-200">
             <h2 className="text-3xl font-bold text-gray-900 text-center mb-2">Welcome Back</h2>
             <p className="text-gray-600 text-center mb-8">Sign in to your account</p>
-            
+
             {loginError && (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
                 {loginError}
               </div>
             )}
-            
+
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <div>
                 <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">Username</label>
-                <input 
-                  type="text" 
-                  placeholder="Enter your username" 
+                <input
+                  type="text"
+                  placeholder="Enter your username"
                   {...register('username', { required: true })}
                   className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all duration-200"
                 />
@@ -68,17 +66,17 @@ function LoginPage() {
 
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">Password</label>
-                <input 
-                  type="password" 
-                  placeholder="Enter your password" 
+                <input
+                  type="password"
+                  placeholder="Enter your password"
                   {...register('password', { required: true })}
                   className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all duration-200"
                 />
                 {errors.password && <p className='text-red-600 text-sm mt-1'>Password is required</p>}
               </div>
 
-              <button 
-                type='submit' 
+              <button
+                type='submit'
                 disabled={isPending}
                 className="w-full py-3 px-4 bg-gradient-to-r from-gray-700 to-gray-900 hover:from-gray-800 hover:to-black text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
@@ -98,6 +96,14 @@ function LoginPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+function LoginPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LoginForm />
+    </Suspense>
   )
 }
 
