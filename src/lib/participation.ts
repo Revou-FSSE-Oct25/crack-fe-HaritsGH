@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getAccessTokenCookie, refreshAccessTokenCookie } from "./auth";
+import { getAccessTokenCookie } from "./auth";
 
 export async function getParticipants(tournamentId: string) {
   try {
@@ -23,22 +23,6 @@ export async function getParticipatedTournament() {
     });
     return response.data.data;
   } catch (error: any) {
-    if (error.response?.status === 401) {
-      try {
-        const newToken = await refreshAccessTokenCookie();
-        if (!newToken) {
-          throw new Error('Failed to refresh access token');
-        }
-        const retryResponse = await axios.get(`${process.env.NEXT_PUBLIC_BASE_URL}/participant`, {
-          headers: {
-            Authorization: `Bearer ${newToken}`
-          }
-        });
-        return retryResponse.data.data;
-      } catch (refreshError: any) {
-        throw new Error('Failed to refresh access token');
-      }
-    }
     if (error.response?.data?.message) {
       throw new Error(error.response.data.message);
     }
@@ -55,21 +39,6 @@ export async function participate(tournamentId: string, data: { alias: string; p
       }
     });
   } catch (error: any) {
-    if (error.response?.status === 401) {
-      try {
-        const newToken = await refreshAccessTokenCookie();
-        if (!newToken) {
-          throw new Error('Failed to refresh access token');
-        }
-        await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/participant/${tournamentId}`, data, {
-          headers: {
-            Authorization: `Bearer ${newToken}`
-          }
-        });
-      } catch (refreshError: any) {
-        throw new Error('Failed to refresh access token');
-      }
-    }
     if (error.response?.data?.message) {
       throw new Error(error.response.data.message);
     }
@@ -86,21 +55,6 @@ export async function updateParticipation(tournamentId: string, data: { alias: s
       }
     });
   } catch (error: any) {
-    if (error.response?.status === 401) {
-      try {
-        const newToken = await refreshAccessTokenCookie();
-        if (!newToken) {
-          throw new Error('Failed to refresh access token');
-        }
-        await axios.patch(`${process.env.NEXT_PUBLIC_BASE_URL}/participant/${tournamentId}`, data, {
-          headers: {
-            Authorization: `Bearer ${newToken}`
-          }
-        });
-      } catch (refreshError: any) {
-        throw new Error('Failed to refresh access token');
-      }
-    }
     if (error.response?.data?.message) {
       throw new Error(error.response.data.message);
     }
@@ -117,21 +71,6 @@ export async function cancelParticipation(tournamentId: string) {
       }
     });
   } catch (error: any) {
-    if (error.response?.status === 401) {
-      try {
-        const newToken = await refreshAccessTokenCookie();
-        if (!newToken) {
-          throw new Error('Failed to refresh access token');
-        }
-        await axios.delete(`${process.env.NEXT_PUBLIC_BASE_URL}/participant/${tournamentId}`, {
-          headers: {
-            Authorization: `Bearer ${newToken}`
-          }
-        });
-      } catch (refreshError: any) {
-        throw new Error('Failed to refresh access token');
-      }
-    }
     if (error.response?.data?.message) {
       throw new Error(error.response.data.message);
     }

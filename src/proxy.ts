@@ -49,14 +49,17 @@ export async function proxy(request: NextRequest) {
             Authorization: `Bearer ${accessToken}`
           }
         });
-        return response.data.tournaments;
+        return response.data.data.tournaments || [];
       }
 
-      if (!(await checkForAdmin()).includes(tournamentId)) {
+      const adminTournaments = await checkForAdmin();
+
+      if (!adminTournaments.includes(tournamentId)) {
         return NextResponse.redirect(new URL(`/tournament/${tournamentId}`, request.url))
       }
     } catch (error: any) {
-      return NextResponse.redirect(new URL('/login', request.url))
+      console.error('checkForAdmin error:', error.message);
+      return NextResponse.redirect(new URL('/', request.url))
     }
   }
 

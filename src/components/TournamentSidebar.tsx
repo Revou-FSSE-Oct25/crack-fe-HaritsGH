@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useAuth } from '@/app/context/AuthContext'
+import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { getParticipatedTournamentAction } from '@/app/tournament/[id]/participate/action'
 
@@ -17,6 +18,7 @@ interface ParticipantData {
 
 export default function TournamentSidebar({ tournamentId, tournamentStatus }: TournamentSidebarProps) {
   const { accessToken, refreshAccessTokenState } = useAuth()
+  const pathname = usePathname()
   const [isParticipating, setIsParticipating] = useState<boolean>(false)
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [participantData, setParticipantData] = useState<ParticipantData | null>(null)
@@ -25,14 +27,18 @@ export default function TournamentSidebar({ tournamentId, tournamentStatus }: To
     const checkParticipation = async () => {
       try {
         const response = await getParticipatedTournamentAction() // array of int for participants
-        const currentParticipant = response.find((p: any) => p.tournamentId === Number(tournamentId))
+        if (Array.isArray(response)) {
+          const currentParticipant = response.find((p: any) => p.tournamentId === Number(tournamentId))
 
-        if (currentParticipant) {
-          setIsParticipating(true)
-          setParticipantData({
-            alias: currentParticipant.alias,
-            prefix: currentParticipant.prefix
-          })
+          if (currentParticipant) {
+            setIsParticipating(true)
+            setParticipantData({
+              alias: currentParticipant.alias,
+              prefix: currentParticipant.prefix
+            })
+          } else {
+            setIsParticipating(false)
+          }
         } else {
           setIsParticipating(false)
         }
@@ -98,7 +104,7 @@ export default function TournamentSidebar({ tournamentId, tournamentStatus }: To
             Participate
           </button>
           <Link 
-            href="/login"
+            href={`/login?redirect=${encodeURIComponent(pathname)}`}
             className="block w-full text-center text-blue-600 hover:underline"
           >
             Login to participate

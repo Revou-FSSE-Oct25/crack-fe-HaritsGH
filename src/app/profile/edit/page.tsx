@@ -20,66 +20,70 @@ const ProfileEditPage = () => {
   return (
     <>
       <Header/>
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md mx-auto">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
-            <div className="bg-gradient-to-r from-gray-700 to-gray-900 px-6 py-8">
-              <h2 className="text-3xl font-bold text-white">Change Password</h2>
-              <p className="text-gray-300 mt-2">Update your password to keep your account secure</p>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Change Password</h1>
+              <p className="text-gray-600">Update your password to keep your account secure</p>
             </div>
-            
-            <form onSubmit={handleSubmit(onSubmit)} className="px-6 py-8 space-y-6">
-              {isPending && (
-                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                  <p className="text-blue-800 dark:text-blue-200 font-medium">Processing...</p>
-                </div>
-              )}
-              
-              <div className="space-y-2">
-                <label htmlFor="newPassword" className="block text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
-                  New Password
-                </label>
-                <input 
-                  id="newPassword" 
-                  type="password" 
-                  placeholder="Enter new password" 
-                  {...register('newPassword', { required: true })}
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all duration-200"
-                />
-                {errors.newPassword && <p className='text-red-500 text-sm mt-1'>New Password is required</p>}
-              </div>
-              
-              <div className="space-y-2">
-                <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">
-                  Confirm New Password
-                </label>
-                <input 
-                  id="confirmPassword" 
-                  type="password" 
-                  placeholder="Confirm new password" 
-                  {...register('confirmPassword', { required: true })}
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent dark:bg-gray-700 dark:text-white transition-all duration-200"
-                />
-                {errors.confirmPassword && <p className='text-red-500 text-sm mt-1'>Confirm New Password is required</p>}
-              </div>
-              
-              <div className="pt-4 space-y-4">
-                <button 
-                  type="submit"
-                  disabled={isPending}
-                  className="w-full px-6 py-3 bg-gradient-to-r from-gray-700 to-gray-900 hover:from-gray-800 hover:to-black text-white font-medium rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-                >
-                  {isPending ? 'Saving...' : 'Save Password'}
-                </button>
+          </div>
+
+          <div className="max-w-md">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                {isPending && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <p className="text-blue-800 font-medium">Processing...</p>
+                  </div>
+                )}
                 
-                <Link 
-                  href="/profile"
-                  className="block w-full text-center px-6 py-3 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-medium rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200"
-                >
-                  Cancel
-                </Link>
-              </div>
-            </form>
+                <div className="space-y-2">
+                  <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700">
+                    New Password
+                  </label>
+                  <input 
+                    id="newPassword" 
+                    type="password" 
+                    placeholder="Enter new password" 
+                    {...register('newPassword', { required: true })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all duration-200"
+                  />
+                  {errors.newPassword && <p className='text-red-500 text-sm mt-1'>New Password is required</p>}
+                </div>
+                
+                <div className="space-y-2">
+                  <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+                    Confirm New Password
+                  </label>
+                  <input 
+                    id="confirmPassword" 
+                    type="password" 
+                    placeholder="Confirm new password" 
+                    {...register('confirmPassword', { required: true })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent transition-all duration-200"
+                  />
+                  {errors.confirmPassword && <p className='text-red-500 text-sm mt-1'>Confirm New Password is required</p>}
+                </div>
+                
+                <div className="pt-4 space-y-4">
+                  <button 
+                    type="submit"
+                    disabled={isPending}
+                    className="w-full px-6 py-3 bg-gradient-to-r from-gray-700 to-gray-900 hover:from-gray-800 hover:to-black text-white font-medium rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                  >
+                    {isPending ? 'Saving...' : 'Save Password'}
+                  </button>
+                  
+                  <Link 
+                    href="/profile"
+                    className="block w-full text-center px-6 py-3 text-gray-600 hover:text-gray-900 font-medium rounded-lg hover:bg-gray-100 transition-all duration-200"
+                  >
+                    Cancel
+                  </Link>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       </div>

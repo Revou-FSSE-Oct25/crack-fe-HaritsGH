@@ -33,7 +33,10 @@ export async function login(credentials : {username : string, password : string}
         if (error.response?.data?.message) {
             throw new Error(error.response.data.message);
         }
-        throw new Error('Login failed');
+        if (error.code === 'ECONNREFUSED' || error.code === 'ERR_NETWORK') {
+            throw new Error('Cannot connect to backend server. Please check if the API is running.');
+        }
+        throw new Error(`Login failed: ${error.message}`);
     }
 }
 

@@ -6,12 +6,13 @@ import { useTransition, useEffect, useState } from "react"
 import { useAuth } from "@/app/context/AuthContext"
 import axios from "axios"
 import { useUser } from "@/app/context/UserContext";
-import { useParams } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 
 const Header : React.FC = () => {
   const params = useParams()
+  const pathname = usePathname()
   const { accessToken, setAccessToken, refreshAccessTokenState } = useAuth()
-  const { username, setUserInfo, clearUserInfo } = useUser()
+  const { setUserInfo, clearUserInfo } = useUser()
   const [isPending, startTransition] = useTransition()
   const [headerUsername, setHeaderUsername] = useState('')
   
@@ -69,6 +70,12 @@ const Header : React.FC = () => {
           </Link>
 
           <div className="flex items-center gap-6">
+            <Link 
+              href={'/tournament'} 
+              className="text-gray-600 hover:text-gray-900 font-medium transition-colors duration-200"
+            >
+              Tournaments
+            </Link>
             {headerUsername ? (
               <div className="flex items-center gap-6">
                 <span className="text-gray-700 font-medium hidden sm:block">
@@ -96,7 +103,7 @@ const Header : React.FC = () => {
               </div>
             ) : (
               <Link 
-                href={'/login'} 
+                href={pathname.startsWith('/tournament/') ? `/login?redirect=${encodeURIComponent(pathname)}` : '/login'}
                 className="px-6 py-2 bg-gradient-to-r from-gray-700 to-gray-900 hover:from-gray-800 hover:to-black text-white font-medium rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200"
               >
                 Login

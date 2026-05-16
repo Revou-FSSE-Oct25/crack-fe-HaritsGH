@@ -2,7 +2,7 @@
 
 import Header from '@/components/Header'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useTransition, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { loginAction } from './action'
@@ -14,13 +14,15 @@ function LoginPage() {
   const [isPending, startTransition] = useTransition()
   const [loginError, setLoginError] = useState<string | null>(null)
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { setUserInfo, userId } = useUser()
 
   useEffect(() => {
     if (userId) {
-      router.push('/dashboard')
+      const redirect = searchParams.get('redirect')
+      router.push(redirect || '/dashboard')
     }
-  }, [userId, router])
+  }, [userId, router, searchParams])
 
   const onSubmit = (data: LoginProps) => {
     setLoginError(null)

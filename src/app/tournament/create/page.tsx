@@ -46,26 +46,20 @@ const TournamentCreatePage = () => {
     setError(null)
 
     try {
-      if (!accessToken) {
-        throw new Error('You must be logged in to create a tournament')
-      }
-
-      // Combine startDate and startTime into a single ISO date string
-      const combinedStartDateTime = new Date(`${data.startDate}T${data.startTime}`)
+      const startDate = `${data.startDate}T${data.startTime}:00Z`
       const requestData: CreateTournamentRequest = {
         name: data.name,
         game: data.game,
-        startDate: combinedStartDateTime.toISOString(),
+        startDate: startDate,
         utc: data.utc
       }
 
-      // Combine endDate and endTime if provided
       if (data.endDate && data.endTime) {
-        const combinedEndDateTime = new Date(`${data.endDate}T${data.endTime}`)
-        requestData.endDate = combinedEndDateTime.toISOString()
+        const endDate = `${data.endDate}T${data.endTime}:00Z`
+        requestData.endDate = endDate
       }
 
-      const tournament = await createTournamentAction(accessToken, requestData)
+      const tournament = await createTournamentAction(requestData)
       router.push(`/tournament/${tournament.id}`)
     } catch (err: any) {
       setError(err.message || 'Failed to create tournament')

@@ -3,25 +3,50 @@
 import { userChangePassword, getUserProfile, userDeactivateAccount } from "@/lib/user";
 import { redirect } from "next/navigation";
 import { PasswordEditProps } from "@/lib/props";
-import { cookies } from "next/headers";
+import { callForRefresh } from "@/lib/refresh";
 
 export async function getUserProfileAction() {
-  const cookieStore = await cookies();
-  const accessToken = cookieStore.get('accessToken')?.value;
-  const userProfile = await getUserProfile(accessToken!);
-  return {username: userProfile.username, email: userProfile.email};
+  try {
+    const userProfile = await getUserProfile();
+    return {username: userProfile.username, email: userProfile.email};
+  } catch (error: any) {
+    if (error.response?.status === 401) {
+      return await callForRefresh(async () => {
+        const userProfile = await getUserProfile();
+        return {username: userProfile.username, email: userProfile.email};
+      });
+    } else {
+      return { error: error.message || 'Failed to fetch user profile' };
+    }
+  }
 }
 
 export async function changePasswordAction(passwords: PasswordEditProps) {
-  const cookieStore = await cookies();
-  const accessToken = cookieStore.get('accessToken')?.value;
-  await userChangePassword(accessToken!, passwords);
+  try {
+    await userChangePassword(passwords);
+  } catch (error: any) {
+    if (error.response?.status === 401) {
+      await callForRefresh(async () => {
+        await userChangePassword(passwords);
+      });
+    } else {
+      return { error: error.message || 'Failed to change password' };
+    }
+  }
   redirect('/profile');
 }
 
 export async function deactivateAccountAction() {
-  const cookieStore = await cookies();
-  const accessToken = cookieStore.get('accessToken')?.value;
-  await userDeactivateAccount(accessToken!);
+  try {
+    await userDeactivateAccount();
+  } catch (error: any) {
+    if (error.response?.status === 401) {
+      await callForRefresh(async () => {
+        await userDeactivateAccount();
+      });
+    } else {
+      return { error: error.message || 'Failed to deactivate account' };
+    }
+  }
   redirect('/');
 }
