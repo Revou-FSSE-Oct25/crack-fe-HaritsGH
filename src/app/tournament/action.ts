@@ -1,6 +1,7 @@
 'use server'
 
 import { createTournament, getTournamentDetails, getTournamentList } from "@/lib/tournament"
+import { getTournamentBracketScore } from "@/lib/scores"
 import { callForRefresh } from "@/lib/refresh"
 
 export async function getTournamentListAction() {
@@ -9,6 +10,10 @@ export async function getTournamentListAction() {
 
 export async function getTournamentDetailsAction(id: string) {
   return await getTournamentDetails(id)
+}
+
+export async function getTournamentBracketScoreAction(id: string) {
+  return await getTournamentBracketScore(id)
 }
 
 export async function createTournamentAction(data: {
