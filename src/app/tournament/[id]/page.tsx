@@ -126,7 +126,7 @@ function TournamentPage() {
                 </div>
 
                 {/* Sidebar */}
-                {params.id && (
+                {params.id && (userId || tournamentDetails.status === 'Upcoming') && (
                   <div className="lg:w-80">
                     <TournamentSidebar tournamentId={params.id} tournamentStatus={tournamentDetails.status} />
                   </div>

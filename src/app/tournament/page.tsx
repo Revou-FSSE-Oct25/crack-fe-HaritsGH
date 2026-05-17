@@ -29,18 +29,18 @@ function TournamentListPage() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <Header/>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
           <div>
-            <h1 className="text-4xl font-bold text-slate-800 mb-2">Browse Tournaments</h1>
-            <p className="text-slate-600">Discover and join exciting tournaments</p>
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">Browse Tournaments</h1>
+            <p className="text-gray-600">Discover and join exciting tournaments</p>
           </div>
           {userId && (
             <Link
               href="/tournament/create"
-              className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
+              className="px-6 py-3 bg-gradient-to-r from-gray-700 to-gray-900 hover:from-gray-800 hover:to-black text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200"
             >
               Create Tournament
             </Link>
@@ -49,7 +49,7 @@ function TournamentListPage() {
 
         {loading && (
           <div className="flex justify-center items-center py-16">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
           </div>
         )}
 
@@ -63,7 +63,7 @@ function TournamentListPage() {
           <>
             {tourneyList.length === 0 ? (
               <div className="text-center py-16">
-                <p className="text-slate-500 text-lg">No tournaments available at the moment.</p>
+                <p className="text-gray-500 text-lg">No tournaments available at the moment.</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
@@ -75,13 +75,13 @@ function TournamentListPage() {
           </>
         )}
 
-        <div className="flex flex-col items-center gap-4 mt-8 pt-8 border-t border-slate-200">
-          <p className="text-slate-600 font-medium">Page 1 of 10</p>
+        <div className="flex flex-col items-center gap-4 mt-8 pt-8 border-t border-gray-200">
+          <p className="text-gray-600 font-medium">Page 1 of 10</p>
           <div className="flex gap-2">
-            <button className="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 hover:border-slate-400 transition-colors duration-200 font-medium">
+            <button className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-colors duration-200 font-medium">
               Previous
             </button>
-            <button className="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 hover:border-slate-400 transition-colors duration-200 font-medium">
+            <button className="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-colors duration-200 font-medium">
               Next
             </button>
           </div>
@@ -91,8 +91,8 @@ function TournamentListPage() {
                 key={page}
                 className={`w-10 h-10 rounded-lg font-medium transition-all duration-200 ${
                   page === 1
-                    ? 'bg-indigo-600 text-white shadow-md'
-                    : 'bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 hover:border-slate-400'
+                    ? 'bg-gray-900 text-white shadow-md'
+                    : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400'
                 }`}
               >
                 {page}

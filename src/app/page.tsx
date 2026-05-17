@@ -1,29 +1,32 @@
-// 'use client';
+'use client';
 
+import { useState, useEffect } from 'react';
 import TournamentCard from "@/components/TournamentCard";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { TournamentProps } from "@/lib/props";
+import { getTournamentListAction } from "@/app/tournament/action";
 import Link from "next/link";
 
 
 export default function Home() {
-  const tourneyList : TournamentProps[] = [
-    {
-      id : 1,
-      name : 'turni',
-      startdate : '17-10-1994',
-      status : 'Upcoming',
-      game : 'Mahjong',
-    },
-    {
-      id : 2,
-      name : 'turni2',
-      startdate : '17-10-1994',
-      status : 'Upcoming',
-      game : 'Mahjong',
-    },
-  ]
+  const [tourneyList, setTourneyList] = useState<TournamentProps[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchTournaments() {
+      try {
+        const data = await getTournamentListAction();
+        setTourneyList(data.slice(0, 5));
+      } catch (err: any) {
+        setError(err.message || 'Failed to load tournaments');
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchTournaments();
+  }, []);
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300">
       <Header/>
@@ -59,11 +62,21 @@ export default function Home() {
               <h2 className="text-4xl font-bold text-gray-900 mb-4">Featured Tournaments</h2>
               <p className="text-gray-600 text-lg">Compete in the best gaming events</p>
             </div>
-            <div className="flex flex-wrap gap-6 justify-center">
-              {tourneyList.map((turni : TournamentProps) => (
-                <TournamentCard key={turni.id} details={turni} />
-              ))}
-            </div>
+            {loading ? (
+              <div className="text-center text-gray-600">Loading tournaments...</div>
+            ) : error ? (
+              <div className="text-center text-red-600">{error}</div>
+            ) : tourneyList.length === 0 ? (
+              <div className="text-center text-gray-600">No tournaments available</div>
+            ) : (
+              <div className="flex flex-wrap gap-6 justify-center">
+                {tourneyList.map((turni : TournamentProps) => (
+                  <div key={turni.id} className="transform hover:scale-105 transition-transform duration-300">
+                    <TournamentCard details={turni} />
+                  </div>
+                ))}
+              </div>
+            )}
             <div className="text-center mt-10">
               <Link 
                 href="/tournament" 
