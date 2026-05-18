@@ -25,7 +25,7 @@ export async function proxy(request: NextRequest) {
 
   // Redirect to dashboard if already logged in and accessing login page
   if (pathname === '/login' && accessToken) {
-    return NextResponse.redirect(new URL('/akao', request.url))
+    return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
   // Non-protected routes
