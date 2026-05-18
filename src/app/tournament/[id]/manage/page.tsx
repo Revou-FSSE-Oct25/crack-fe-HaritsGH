@@ -2,7 +2,7 @@
 
 import Header from '@/components/Header';
 import SearchUser from '@/components/SearchUser';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form'
 import { useEffect, useState } from 'react';
 import { getTournamentDetailsAction } from '../../action';
@@ -11,6 +11,7 @@ import { useUser } from '@/app/context/UserContext';
 
 function TournamentManagePage() {
   const params = useParams()
+  const router = useRouter()
   const { userId } = useUser()
   const [isOwner, setIsOwner] = useState<boolean>(false)
   const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false)
@@ -46,7 +47,12 @@ function TournamentManagePage() {
   }, [userId, reset])
   
   const onSubmit = async (data: any) => {
-    await editTournamentDetailsAction(params.id as string, data)
+    const result = await editTournamentDetailsAction(params.id as string, data)
+    if (result && result.error) {
+      console.error(result.error)
+    } else {
+      router.push(`/tournament/${params.id}`)
+    }
   }
 
   const handleDelete = async () => {
@@ -54,7 +60,12 @@ function TournamentManagePage() {
   }
 
   const confirmDelete = async () => {
-    await deleteTournamentAction(params.id as string)
+    const result = await deleteTournamentAction(params.id as string)
+    if (result && result.error) {
+      console.error(result.error)
+    } else {
+      router.push('/dashboard')
+    }
     setShowDeleteModal(false)
   }
 

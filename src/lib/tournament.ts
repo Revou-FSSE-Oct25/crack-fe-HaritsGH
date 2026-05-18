@@ -127,3 +127,51 @@ export async function getTournamentsAdmined() {
     throw new Error('Failed to fetch admin tournaments');
   }
 }
+
+export async function startTournament(id: string, participantList:{tournamentId: number, matchId: number, userIds: number[]}[]) {
+  const accessToken = await getAccessTokenCookie();
+  console.log(participantList)
+  try {
+    const bracketResponse = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/bracket-score/`, {participantList}, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    });
+  } catch (error: any) {
+    if (error.response?.data?.message) {
+      throw new Error(error.response.data.message);
+    }
+    throw new Error('Failed to generate bracket');
+  }
+  
+  try {
+    const response = await axios.patch(`${process.env.NEXT_PUBLIC_BASE_URL}/tournament/${id}`, {status: 'Ongoing'}, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    });
+    return response.data.data;
+  } catch (error: any) {
+    if (error.response?.data?.message) {
+      throw new Error(error.response.data.message);
+    }
+    throw new Error('Failed to start tournament');
+  }
+}
+
+export async function finishTournament(id: string) {
+  const accessToken = await getAccessTokenCookie();
+  try {
+    const response = await axios.patch(`${process.env.NEXT_PUBLIC_BASE_URL}/tournament/${id}`, {status: 'Completed'}, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    });
+    return response.data.data;
+  } catch (error: any) {
+    if (error.response?.data?.message) {
+      throw new Error(error.response.data.message);
+    }
+    throw new Error('Failed to finish tournament');
+  }
+}

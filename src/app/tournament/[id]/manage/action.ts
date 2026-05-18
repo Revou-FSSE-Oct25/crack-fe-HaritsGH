@@ -1,6 +1,5 @@
 'use server'
 
-import { redirect } from "next/navigation"
 import { deleteTournament, editTournamentDetails, updateTournamentAdmins } from "@/lib/tournament"
 import { getUsernamesById, getUserSearch } from "@/lib/user"
 import { callForRefresh } from "@/lib/refresh"
@@ -19,13 +18,11 @@ export async function editTournamentDetailsAction(id: string, data: any) {
   delete data.admins
   try {
     await editTournamentDetails(id, data)
-    redirect(`/tournament/${id}`)
   } catch (error: any) {
     if (error.response?.status === 401) {
       await callForRefresh(async () => {
         await editTournamentDetails(id, data)
       })
-      redirect(`/tournament/${id}`)
     } else {
       return { error: error.message || 'Failed to edit tournament details' };
     }
@@ -80,13 +77,11 @@ export async function updateAdminsAction(tournamentId: string, admins: {id: numb
 export async function deleteTournamentAction(tournamentId: string) {
   try {
     await deleteTournament(tournamentId)
-    redirect('/dashboard')
   } catch (error: any) {
     if (error.response?.status === 401) {
       await callForRefresh(async () => {
         await deleteTournament(tournamentId)
       })
-      redirect('/dashboard')
     } else {
       return { error: error.message || 'Failed to delete tournament' };
     }

@@ -8,7 +8,7 @@ import { useParams } from 'next/navigation'
 import { useUser } from '@/app/context/UserContext'
 import { useEffect, useState } from 'react'
 import { getParticipantsAction } from './participate/action'
-import { getTournamentDetailsAction } from '../action'
+import { getTournamentDetailsAction, startTournamentAction, finishTournamentAction } from '../action'
 
 function TournamentPage() {
   const params = useParams()
@@ -35,7 +35,6 @@ function TournamentPage() {
       const details = await getTournamentDetailsAction(params.id as string)
       setTournamentDetails(details)
       const participants = await getParticipantsAction(params.id as string)
-      console.log(participants)
       setTournamentParticipants(participants)
       
       // Calculate currentUser when participants are fetched
@@ -50,6 +49,48 @@ function TournamentPage() {
     }
     fetchData()
   }, [userId])
+
+  const pairArray = <T,>(arr: T[]): T[][] => {
+    const result: T[][] = [];
+    const workingArray = arr.length % 2 === 0 ? arr : [0 as T, ...arr];
+    for (let i = 0; i < workingArray.length; i += 2) {
+      result.push([workingArray[i], workingArray[i + 1]]);
+    }
+    return result.reverse();
+  };
+
+  const handleStartTournament = async () => {
+    const processedUserIds = pairArray(tournamentParticipants.map((p: any) => p.userId))
+    const initialScores = []
+    for (let i = 0; i < tournamentParticipants.length - 1; i++) {
+      initialScores.push({
+        tournamentId: Number(params.id),
+        matchId: i + 1,
+        userIds: processedUserIds[i]
+      })
+    }
+    // console.log(initialScores)
+    const result = await startTournamentAction(params.id as string, initialScores)
+    
+    if (result?.error) {
+      alert(result.error)
+      return
+    }
+    // Refresh tournament details to update status
+    const details = await getTournamentDetailsAction(params.id as string)
+    setTournamentDetails(details)
+  }
+
+  const handleFinishTournament = async () => {
+    const result = await finishTournamentAction(params.id as string)
+    if (result?.error) {
+      alert(result.error)
+      return
+    }
+    // Refresh tournament details to update status
+    const details = await getTournamentDetailsAction(params.id as string)
+    setTournamentDetails(details)
+  }
 
   return (
     <>
@@ -73,14 +114,36 @@ function TournamentPage() {
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">{tournamentDetails.name}</h1>
                     <p className="text-gray-600">{tournamentDetails.game}</p>
                   </div>
-                  {(userId === tournamentDetails.owner || tournamentDetails.admins?.includes(userId)) && 
-                    <Link
-                      href={`/tournament/${tournamentDetails.id}/manage`}
-                      className="px-4 py-2 bg-gradient-to-r from-gray-700 to-gray-900 hover:from-gray-800 hover:to-black text-white font-medium rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 whitespace-nowrap"
-                    >
-                      Edit Tournament
-                    </Link>
-                  }
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    {(userId === tournamentDetails.owner || tournamentDetails.admins?.includes(userId)) && 
+                      tournamentDetails.status === 'Upcoming' && (
+                        <button
+                          onClick={handleStartTournament}
+                          className="px-4 py-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-medium rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 whitespace-nowrap"
+                        >
+                          Start Tournament
+                        </button>
+                      )
+                    }
+                    {(userId === tournamentDetails.owner || tournamentDetails.admins?.includes(userId)) && 
+                      tournamentDetails.status === 'Ongoing' && (
+                        <button
+                          onClick={handleFinishTournament}
+                          className="px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-medium rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 whitespace-nowrap"
+                        >
+                          Finish Tournament
+                        </button>
+                      )
+                    }
+                    {(userId === tournamentDetails.owner || tournamentDetails.admins?.includes(userId)) && 
+                      <Link
+                        href={`/tournament/${tournamentDetails.id}/manage`}
+                        className="px-4 py-2 bg-gradient-to-r from-gray-700 to-gray-900 hover:from-gray-800 hover:to-black text-white font-medium rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 whitespace-nowrap"
+                      >
+                        Edit Tournament
+                      </Link>
+                    }
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -149,7 +212,7 @@ function TournamentPage() {
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                   <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
                     <svg className="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                     </svg>
                     Tournament Bracket
                   </h2>
@@ -157,6 +220,7 @@ function TournamentPage() {
                     participants={tournamentParticipants}
                     currentUser={currentUser}
                     tournamentId={params.id as string}
+                    isAdmin={userId === tournamentDetails.owner || tournamentDetails.admins?.includes(userId)}
                   />
                 </div>
               )}
