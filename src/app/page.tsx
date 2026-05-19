@@ -18,7 +18,7 @@ export default function Home() {
     async function fetchTournaments() {
       try {
         const data = await getTournamentListAction();
-        setTourneyList(data.slice(0, 5));
+        setTourneyList(data.slice(0, 4));
       } catch (err: any) {
         setError(err.message || 'Failed to load tournaments');
       } finally {

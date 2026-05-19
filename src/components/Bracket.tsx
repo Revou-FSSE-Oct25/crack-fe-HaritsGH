@@ -148,20 +148,19 @@ const Bracket: React.FC<BracketProps> = ({ participants, currentUser, tournament
     const player1Participant = participants?.find(p => p.userId === player1Id);
     const player2Participant = participants?.find(p => p.userId === player2Id);
     
-    const round1Matches = generatedRounds[0].length
     const participantsRemainder = participants.length % Math.pow(2, Math.floor(Math.log2(participants.length)))
     const roundOffset = participantsRemainder === 0
       ? 0 
       : Math.floor(Math.log2(participants.length - match.matchId));
 
     const player1Name = player1Participant 
-      ? `${player1Participant.prefix} | ${player1Participant.alias}` 
+      ? `${player1Participant.prefix? player1Participant.prefix + ' | ' : ''} ${player1Participant.alias}` 
       : player1Id === 0 && roundIndex > 0
         ? `Winner of match ${match.matchId - roundOffset - 2}`
         : '';
     
     const player2Name = player2Participant 
-      ? `${player2Participant.prefix} | ${player2Participant.alias}` 
+      ? `${player2Participant.prefix ? player2Participant.prefix + ' | ' : ''} ${player2Participant.alias}` 
       : player2Id === 0 && roundIndex > 0
         ? `Winner of match ${match.matchId - roundOffset - 1}`
         : '';
