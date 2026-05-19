@@ -69,7 +69,6 @@ function TournamentPage() {
         userIds: processedUserIds[i]
       })
     }
-    // console.log(initialScores)
     const result = await startTournamentAction(params.id as string, initialScores)
     
     if (result?.error) {

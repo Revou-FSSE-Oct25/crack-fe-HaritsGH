@@ -11,11 +11,6 @@ interface Match {
   originalMatch?: any;
 }
 
-interface Round {
-  name: string;
-  matches: Match[];
-}
-
 interface Participant {
   userId: number;
   prefix: string;
@@ -57,6 +52,8 @@ const Bracket: React.FC<BracketProps> = ({ participants, currentUser, tournament
 
   const handleSubmitScore = async () => {
     if (!selectedMatch || !tournamentId || score1 === undefined || score2 === undefined) return;
+
+    console.log(selectedMatch)
     
     // Calculate winner based on scores
     let winnerId: number | undefined | null;
@@ -67,6 +64,9 @@ const Bracket: React.FC<BracketProps> = ({ participants, currentUser, tournament
     } else if (score2 > score1) {
       winnerId = selectedMatch.userIds?.[1];
     }
+
+    // Calculate next round match Id
+    // const nextRoundMatchId = selectedMatch.nextRoundMatchId + 1;
     
     setIsSubmitting(true);
     try {
@@ -75,7 +75,8 @@ const Bracket: React.FC<BracketProps> = ({ participants, currentUser, tournament
         selectedMatch.id, 
         [score1, score2], 
         selectedMatch.userIds,
-        winnerId
+        winnerId,
+        // nextRoundMatchId
       );
       
       if (result?.error) {
@@ -96,9 +97,9 @@ const Bracket: React.FC<BracketProps> = ({ participants, currentUser, tournament
   };
 
   const BracketRoundGenerator = (bracketScoresData: any[]) => {
-    function getBaseLog(base: number, n: number) {
-      return Math.log(n) / Math.log(base);
-    }
+    // function getBaseLog(base: number, n: number) {
+    //   return Math.log(n) / Math.log(base);
+    // }
     // function modulo(x: number, y: number) {
     //   return y * Math.floor(x / y) + (x % y); JUST DO MATH.FLOOR BRUH
     // }
@@ -138,168 +139,122 @@ const Bracket: React.FC<BracketProps> = ({ participants, currentUser, tournament
   // Use BracketRoundGenerator to get the rounds
   const generatedRounds = BracketRoundGenerator(bracketScores);
 
-  
-  // Convert Match[][] to Round[] with proper names and map userIds to participant names
-  const matchWinners: { [matchId: string]: number } = {};
-  
-  // First pass: collect all match winners from previous rounds
-  generatedRounds.forEach((matches, roundIndex) => {
-    matches.forEach((match: any) => {
-      if (match.winnerId) {
-        matchWinners[match.matchId] = match.winnerId;
-      }
-    });
-  });
-  
-  const bracketRounds: Round[] = generatedRounds.map((matches, index) => {
-    const roundNumber = index + 1;
-    const isLastRound = index === generatedRounds.length - 1;
-    const roundName = isLastRound ? 'Final' : `Round ${roundNumber}`;
+  // Helper function to map match data to display format
+  const mapMatchToDisplay = (match: any, roundIndex: number, matchIndex: number): Match => {
     
-    const mappedMatches: Match[] = matches.map((match: any, matchIndex: number) => {
-      const originalMatch = match; // Store original match data
-      const player1Id = match.userIds?.[0];
-      const player2Id = match.userIds?.[1];
-      
-      const player1Participant = participants?.find(p => p.userId === player1Id);
-      const player2Participant = participants?.find(p => p.userId === player2Id);
-      
-      let player1Name = '';
-      let player2Name = '';
-      
-      if (player1Participant) {
-        player1Name = `${player1Participant.prefix} | ${player1Participant.alias}`;
-      } else {
-        // No participant found, infer parent match from bracket structure
-        if (index > 0 && generatedRounds[index - 1]) {
-          const prevRoundMatches = generatedRounds[index - 1];
-          const parentMatchIndex1 = matchIndex * 2;
-          const parentMatch1 = prevRoundMatches[parentMatchIndex1];
-          if (parentMatch1) {
-            // Check if parent match has a winner
-            if (parentMatch1.winnerId) {
-              const winnerParticipant = participants?.find(p => p.userId === parentMatch1.winnerId);
-              if (winnerParticipant) {
-                player1Name = `${winnerParticipant.prefix} | ${winnerParticipant.alias}`;
-              } else {
-                player1Name = `Winner of match ${parentMatch1.matchId}`;
-              }
-            } else {
-              player1Name = `Winner of match ${parentMatch1.matchId}`;
-            }
-          }
-        }
-      }
-      
-      if (player2Participant) {
-        player2Name = `${player2Participant.prefix} | ${player2Participant.alias}`;
-      } else {
-        // No participant found, infer parent match from bracket structure
-        if (index > 0 && generatedRounds[index - 1]) {
-          const prevRoundMatches = generatedRounds[index - 1];
-          const parentMatchIndex2 = matchIndex * 2 + 1;
-          const parentMatch2 = prevRoundMatches[parentMatchIndex2];
-          if (parentMatch2) {
-            // Check if parent match has a winner
-            if (parentMatch2.winnerId) {
-              const winnerParticipant = participants?.find(p => p.userId === parentMatch2.winnerId);
-              if (winnerParticipant) {
-                player2Name = `${winnerParticipant.prefix} | ${winnerParticipant.alias}`;
-              } else {
-                player2Name = `Winner of match ${parentMatch2.matchId}`;
-              }
-            } else {
-              player2Name = `Winner of match ${parentMatch2.matchId}`;
-            }
-          }
-        }
-      }
-      
-      let winner = undefined;
-      if (match.winnerId) {
-        const winnerParticipant = participants?.find(p => p.userId === match.winnerId);
-        winner = winnerParticipant ? `${winnerParticipant.prefix} | ${winnerParticipant.alias}` : undefined;
-      }
-      
-      return {
-        id: match.matchId,
-        player1: player1Name,
-        player2: player2Name,
-        score1: match.scores?.[0],
-        score2: match.scores?.[1],
-        winner,
-        originalMatch, // Include original match data with userIds
-      };
-    });
+    const player1Id = match.userIds?.[0];
+    const player2Id = match.userIds?.[1];
     
-    return { name: roundName, matches: mappedMatches };
-  }).filter(round => round.matches.length > 0);
+    const player1Participant = participants?.find(p => p.userId === player1Id);
+    const player2Participant = participants?.find(p => p.userId === player2Id);
+    
+    const round1Matches = generatedRounds[0].length
+    const participantsRemainder = participants.length % Math.pow(2, Math.floor(Math.log2(participants.length)))
+    const roundOffset = participantsRemainder === 0
+      ? 0 
+      : Math.floor(Math.log2(participants.length - match.matchId));
+
+    const player1Name = player1Participant 
+      ? `${player1Participant.prefix} | ${player1Participant.alias}` 
+      : player1Id === 0 && roundIndex > 0
+        ? `Winner of match ${match.matchId - roundOffset - 2}`
+        : '';
+    
+    const player2Name = player2Participant 
+      ? `${player2Participant.prefix} | ${player2Participant.alias}` 
+      : player2Id === 0 && roundIndex > 0
+        ? `Winner of match ${match.matchId - roundOffset - 1}`
+        : '';
+    
+    let winner = undefined;
+    if (match.winnerId) {
+      const winnerParticipant = participants?.find(p => p.userId === match.winnerId);
+      winner = winnerParticipant ? `${winnerParticipant.prefix} | ${winnerParticipant.alias}` : undefined;
+    }
+    
+    return {
+      id: match.matchId,
+      player1: player1Name,
+      player2: player2Name,
+      score1: match.scores?.[0],
+      score2: match.scores?.[1],
+      winner,
+      originalMatch: match,
+    };
+  };
 
   return (
     <div className="overflow-x-auto bg-white min-h-screen p-8">
       <div 
         className="grid gap-x-24 gap-y-4"
         style={{
-          gridTemplateColumns: `repeat(${bracketRounds.length}, minmax(200px, auto))`,
-          gridTemplateRows: `repeat(${bracketRounds[0]?.matches.length || 1}, min-content)`
+          gridTemplateColumns: `repeat(${generatedRounds.length}, minmax(200px, auto))`,
+          gridTemplateRows: `repeat(${generatedRounds[0]?.length || 1}, min-content)`
         }}
       >
-        {bracketRounds.map((round, roundIndex) => (
-          <React.Fragment key={roundIndex}>
-            <div 
-              style={{ 
-                gridColumn: roundIndex + 1,
-                gridRow: 1,
-                textAlign: 'center'
-              }}
-            >
-              <h3 className="text-lg font-bold text-gray-800">{round.name}</h3>
-            </div>
-            {round.matches.map((match, matchIndex) => {
-              // Calculate row span: each round doubles the span
-              const rowSpan = Math.pow(2, roundIndex);
-              const gridRowStart = matchIndex * rowSpan + 2; // +2 because row 1 is for the header
-              
-              return (
-                <div 
-                  key={matchIndex} 
-                  style={{ 
-                    gridColumn: roundIndex + 1,
-                    gridRow: `${gridRowStart} / span ${rowSpan}`,
-                    display: 'flex',
-                    alignItems: 'center'
-                  }}
-                >
-                  {/* Match container */}
+        {generatedRounds.map((roundMatches, roundIndex) => {
+          const roundNumber = roundIndex + 1;
+          const isLastRound = roundIndex === generatedRounds.length - 1;
+          const roundName = isLastRound ? 'Final' : `Round ${roundNumber}`;
+          
+          return (
+            <React.Fragment key={roundIndex}>
+              <div 
+                style={{ 
+                  gridColumn: roundIndex + 1,
+                  gridRow: 1,
+                  textAlign: 'center'
+                }}
+              >
+                <h3 className="text-lg font-bold text-gray-800">{roundName}</h3>
+              </div>
+              {roundMatches.map((match: any, matchIndex: number) => {
+                const displayMatch = mapMatchToDisplay(match, roundIndex, matchIndex);
+                // Calculate row span: each round doubles the span
+                const rowSpan = Math.pow(2, roundIndex);
+                const gridRowStart = matchIndex * rowSpan + 2; // +2 because row 1 is for the header
+                
+                return (
                   <div 
-                    className={`flex flex-col border rounded w-full ${isAdmin ? 'cursor-pointer hover:border-blue-500 hover:shadow-md transition-all' : ''} ${currentUser && (match.player1 === currentUser || match.player2 === currentUser) ? 'border-4 border-blue-600' : 'border border-gray-400'}`}
-                    onClick={() => handleMatchClick(match, match.originalMatch)}
+                    key={matchIndex} 
+                    style={{ 
+                      gridColumn: roundIndex + 1,
+                      gridRow: `${gridRowStart} / span ${rowSpan}`,
+                      display: 'flex',
+                      alignItems: 'center'
+                    }}
                   >
-                    {/* Match ID */}
-                    <div className="px-3 py-1 bg-gray-100 border-b border-gray-400">
-                      <span className="text-xs text-gray-600 font-medium">Match {match.id}</span>
-                    </div>
-                    {/* Player 1 */}
-                    <div className="flex items-center justify-between px-3 py-2 border-b border-gray-400">
-                      <span className={`text-sm ${match.winner === match.player1 ? 'text-gray-800 font-bold' : 'text-gray-800'}`}>{match.player1}</span>
-                      <span className="text-gray-800 font-bold">
-                        {match.score1 === -1 ? 'DQ' : match.score1 !== undefined ? match.score1 : '-'}
-                      </span>
-                    </div>
-                    
-                    {/* Player 2 */}
-                    <div className="flex items-center justify-between px-3 py-2">
-                      <span className={`text-sm ${match.winner === match.player2 ? 'text-gray-800 font-bold' : 'text-gray-800'}`}>{match.player2}</span>
-                      <span className="text-gray-800 font-bold">
-                        {match.score2 === -1 ? 'DQ' : match.score2 !== undefined ? match.score2 : '-'}
-                      </span>
+                    {/* Match container */}
+                    <div 
+                      className={`flex flex-col border rounded w-full ${isAdmin ? 'cursor-pointer hover:border-blue-500 hover:shadow-md transition-all' : ''} ${currentUser && (displayMatch.player1 === currentUser || displayMatch.player2 === currentUser) ? 'border-4 border-blue-600' : 'border border-gray-400'}`}
+                      onClick={() => handleMatchClick(displayMatch, displayMatch.originalMatch)}
+                    >
+                      {/* Match ID */}
+                      <div className="px-3 py-1 bg-gray-100 border-b border-gray-400">
+                        <span className="text-xs text-gray-600 font-medium">Match {displayMatch.id}</span>
+                      </div>
+                      {/* Player 1 */}
+                      <div className="flex items-center justify-between px-3 py-2 border-b border-gray-400">
+                        <span className={`text-sm ${displayMatch.winner === displayMatch.player1 ? 'text-gray-800 font-bold' : 'text-gray-800'}`}>{displayMatch.player1}</span>
+                        <span className="text-gray-800 font-bold">
+                          {displayMatch.score1 === -1 ? 'DQ' : displayMatch.score1}
+                        </span>
+                      </div>
+                      
+                      {/* Player 2 */}
+                      <div className="flex items-center justify-between px-3 py-2">
+                        <span className={`text-sm ${displayMatch.winner === displayMatch.player2 ? 'text-gray-800 font-bold' : 'text-gray-800'}`}>{displayMatch.player2}</span>
+                        <span className="text-gray-800 font-bold">
+                          {displayMatch.score2 === -1 ? 'DQ' : displayMatch.score2}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
-          </React.Fragment>
-        ))}
+                );
+              })}
+            </React.Fragment>
+          );
+        })}
       </div>
 
       {/* Score Edit Modal */}

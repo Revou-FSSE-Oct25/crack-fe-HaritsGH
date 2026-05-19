@@ -1,7 +1,7 @@
 'use server'
 
 import { createTournament, getTournamentDetails, getTournamentList, startTournament, finishTournament } from "@/lib/tournament"
-import { getTournamentBracketScore, updateMatchScore } from "@/lib/scores"
+import { getTournamentBracketScore, updateMatchScore, updateWinnerNextRoundMatch } from "@/lib/scores"
 import { callForRefresh } from "@/lib/refresh"
 import { getAccessTokenCookie } from "@/lib/auth"
 
@@ -65,14 +65,24 @@ export async function finishTournamentAction(id: string) {
   }
 }
 
-export async function updateMatchScoreAction(tournamentId: string, matchId: string, scores: number[], userIds?: number[], winnerId?: number | null) {
-  const accessToken = await getAccessTokenCookie();
+export async function updateMatchScoreAction(
+  tournamentId: string, 
+  matchId: string, 
+  scores: number[], 
+  userIds?: number[], 
+  winnerId?: number | null,
+  nextRoundMatchId?: number | null
+) {
   try {
-    return await updateMatchScore(tournamentId, Number(matchId), scores, userIds, winnerId)
+    await updateMatchScore(tournamentId, Number(matchId), scores, userIds, winnerId)
+    // await updateWinnerNextRoundMatch(tournamentId, Number(nextRoundMatchId), userIds, winnerId)
+    return
   } catch (error: any) {
     if (error.response?.status === 401) {
       return await callForRefresh(async () => {
-        return await updateMatchScore(tournamentId, Number(matchId), scores, userIds, winnerId)
+        await updateMatchScore(tournamentId, Number(matchId), scores, userIds, winnerId)
+        // await updateWinnerNextRoundMatch(tournamentId, Number(nextRoundMatchId), userIds, winnerId)
+        return
       })
     } else {
       return { error: error.message || 'Failed to update match score' };

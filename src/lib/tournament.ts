@@ -130,7 +130,6 @@ export async function getTournamentsAdmined() {
 
 export async function startTournament(id: string, participantList:{tournamentId: number, matchId: number, userIds: number[]}[]) {
   const accessToken = await getAccessTokenCookie();
-  console.log(participantList)
   try {
     const bracketResponse = await axios.post(`${process.env.NEXT_PUBLIC_BASE_URL}/bracket-score/`, {participantList}, {
       headers: {
