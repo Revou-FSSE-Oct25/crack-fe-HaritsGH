@@ -34,6 +34,8 @@ const Bracket: React.FC<BracketProps> = ({ participants, currentUser, tournament
   const [score2, setScore2] = useState<number | undefined>(undefined);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  console.log('passed in user:', currentUser)
+
   const handleMatchClick = (match: any, originalMatch: any) => {
     if (isAdmin) {
       setSelectedMatch({ ...match, userIds: originalMatch.userIds, winnerId: originalMatch.winnerId });
@@ -53,7 +55,7 @@ const Bracket: React.FC<BracketProps> = ({ participants, currentUser, tournament
   const handleSubmitScore = async () => {
     if (!selectedMatch || !tournamentId || score1 === undefined || score2 === undefined) return;
 
-    console.log(selectedMatch)
+    // console.log(selectedMatch)
     
     // Calculate winner based on scores
     let winnerId: number | undefined | null;
@@ -154,13 +156,13 @@ const Bracket: React.FC<BracketProps> = ({ participants, currentUser, tournament
       : Math.floor(Math.log2(participants.length - match.matchId));
 
     const player1Name = player1Participant 
-      ? `${player1Participant.prefix? player1Participant.prefix + ' | ' : ''} ${player1Participant.alias}` 
+      ? `${player1Participant.prefix? player1Participant.prefix + ' |' : ''} ${player1Participant.alias}` 
       : player1Id === 0 && roundIndex > 0
         ? `Winner of match ${match.matchId - roundOffset - 2}`
         : '';
     
     const player2Name = player2Participant 
-      ? `${player2Participant.prefix ? player2Participant.prefix + ' | ' : ''} ${player2Participant.alias}` 
+      ? `${player2Participant.prefix ? player2Participant.prefix + ' |' : ''} ${player2Participant.alias}` 
       : player2Id === 0 && roundIndex > 0
         ? `Winner of match ${match.matchId - roundOffset - 1}`
         : '';
@@ -209,6 +211,9 @@ const Bracket: React.FC<BracketProps> = ({ participants, currentUser, tournament
               </div>
               {roundMatches.map((match: any, matchIndex: number) => {
                 const displayMatch = mapMatchToDisplay(match, roundIndex, matchIndex);
+                console.log('match id', displayMatch.id)
+                console.log('displayMatch player 1:', displayMatch.player1)
+                console.log('displayMatch player 2:', displayMatch.player2)
                 // Calculate row span: each round doubles the span
                 const rowSpan = Math.pow(2, roundIndex);
                 const gridRowStart = matchIndex * rowSpan + 2; // +2 because row 1 is for the header
